@@ -12,6 +12,8 @@ app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 
 
+const Routes = require('./routes/router')
+app.use('/api/', Routes)
 
 
 module.exports = app

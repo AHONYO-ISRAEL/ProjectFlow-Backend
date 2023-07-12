@@ -4,13 +4,14 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const dotenv = require('dotenv');
 const fs = require('fs');
-
+const  auth = require('../middlewares/auth.js')
 const User = db.user;
 
 // Load environment variables from .env file
 dotenv.config();
 
-generateSecretKey = () => {
+/*
+generateRefreshTokenSecret = () => {
   // Generation of UUID
   const uuid = uuidv4();
 
@@ -18,12 +19,15 @@ generateSecretKey = () => {
   const secretKey = uuid;
 
   // Store the secret key in an environment variable
-  process.env.SECRET_KEY = secretKey;
-
+  process.env.REFRESH_TOKEN_SECRET= secretKey;
+  
   // Write the secret key to the .env file
-  const envData = `SECRET_KEY=${secretKey}\n`;
+  const envData = `REFRESH_TOKEN_SECRET=${secretKey}\n`;
   fs.appendFileSync('.env', envData);
 };
+*/
+
+
 
 exports.signup = async (req, res, next) => {
   try {
@@ -45,6 +49,11 @@ exports.signup = async (req, res, next) => {
   }
 };
 
+
+const generateAccessToken =(user)=>{
+  return  jwt.sign({ userId: user.id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' }) 
+}
+
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email: req.body.email } });
@@ -55,9 +64,15 @@ exports.login = async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({ message: 'Incorrect password.' });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
-    res.status(200).json({ userId: user._id, token });
+    const accesstoken =generateAccessToken(user)
+const refreshtoken = jwt.sign({ userId: user.id}, process.env.REFRESH_TOKEN_SECRET)
+    res.status(200).send({ userId: user.id,  accesstoken , refreshtoken});
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
+
+
+exports.getUser = auth, (req,res)=>{
+  res.send(req.auth)
+}

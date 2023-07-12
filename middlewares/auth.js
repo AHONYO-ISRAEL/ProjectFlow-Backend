@@ -7,14 +7,21 @@ dotenv.config();
 
 module.exports = (req, res, next) =>{
     try{
-        const token = req.headers.authorization.split(' ')[1]
-        const decodedToken = jwt.verify(token,   process.env.SECRET_KEY )
-        const userId = decodedToken.userId
+        const accesstoken = req.headers.authorization.split(' ')[1]
+        console.log( req.headers.authorization.split(' '))
+        const decodedAccessToken = jwt.verify(accesstoken,   process.env.ACCESS_TOKEN_SECRET )
+        const userId = decodedAccessToken.userId
         req.auth={
-            userId: userId
+            userId: userId,
+            exp: decodedAccessToken.exp,
+
+          
         }
+
+   
         next()
     }catch(error){
-        res.status(401).json({error})
+        res.status(403).json({error})
     }
 }
+

@@ -1,11 +1,12 @@
 const db = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const  auth = require('../middlewares/auth.js')
 const User = db.user;
+const Role = db.role
+
 
 // Load environment variables from .env file
 dotenv.config();
@@ -35,12 +36,19 @@ exports.signup = async (req, res, next) => {
     if (user) {
       return res.status(401).json('Email already registered. Please try logging in.');
     } else {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const role = await Role.findOne({ where: { roleName: req.body.roleName } });
+      const roleUuid = role.uuid
+      const roleId = role.id
+       const hashedPassword = await bcrypt.hash(req.body.password, 10);
       const newUser = {
         username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
+        roleUuid: roleUuid,
+        roleId: roleId
       };
+      console.log(roleId)
+
       const createdUser = await User.create(newUser);
       return res.status(200).json({ user: createdUser });
     }
@@ -57,16 +65,20 @@ const generateAccessToken =(user)=>{
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email: req.body.email } });
+    const userRoleUuid =  user.roleUuid
+    const roleRow= await Role.findOne({where:{uuid: userRoleUuid}})
+    console.log(roleRow.id)
+    const userRole = roleRow.roleName
     if (!user) {
-      return res.status(401).json({ message: 'User with this email not found.' });
+      return res.status(400).json({ message: 'User with this email not found.' });
     }
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) {
       return res.status(400).json({ message: 'Incorrect password.' });
     }
     const accesstoken =generateAccessToken(user)
-const refreshtoken = jwt.sign({ userId: user.id}, process.env.REFRESH_TOKEN_SECRET)
-    res.status(200).send({ userId: user.id,  accesstoken , refreshtoken});
+const refreshtoken = jwt.sign({ userId: user.uuid}, process.env.REFRESH_TOKEN_SECRET)
+    res.status(200).json({ userId: user.uuid,  accessToken:accesstoken , refreshToken:refreshtoken, role: userRole});
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

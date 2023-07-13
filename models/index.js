@@ -35,6 +35,19 @@ db.sequelize = sequelize
 
 // GETTING EACH MODEL
 db.user = require('./userModel')(sequelize, DataTypes)
+db.role = require('./rolesModel')(sequelize, DataTypes)
+
+
+//Foreign keys
+
+db.role.hasMany(db.user,{
+    foreignKey:'roleId',
+})
+
+db.user.belongsTo(db.role,{
+    foreignKey:'roleId',
+})
+   
 
 
 // SYNCING DATA  BETWEEN API AND DB

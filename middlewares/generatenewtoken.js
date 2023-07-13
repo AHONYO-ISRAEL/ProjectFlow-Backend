@@ -23,10 +23,9 @@ module.exports = [auth, (req, res, next) => {
       
       if (expirationTimeInSeconds <= timeBeforeRefresh) {
         const newAccessToken = jwt.sign({ userId: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-        res.set('Authorization', `Bearer ${newAccessToken} ${refreshToken}`);
-        
+        req.headers.authorization = `Bearer ${newAccessToken}`;        
         // Log the new authorization header
-        console.log(`New Authorization header: Bearer ${newAccessToken} `);
+        console.log(req.headers.authorization.split(' ')[1] ); 
       }
       
       req.data = {

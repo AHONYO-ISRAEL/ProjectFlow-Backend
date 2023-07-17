@@ -78,12 +78,13 @@ exports.login = async (req, res) => {
     }
     const accesstoken =generateAccessToken(user)
 const refreshtoken = jwt.sign({ userId: user.uuid}, process.env.REFRESH_TOKEN_SECRET)
-    res.status(200).json({ userId: user.uuid,  accessToken:accesstoken , refreshToken:refreshtoken, role: userRole});
+console.log(user.username) 
+    res.status(200).json({ userId: user.uuid, userName: user.username , accessToken:accesstoken , refreshToken:refreshtoken, role: userRole});
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
-
+ 
 
 exports.getUser = auth, (req,res)=>{
   res.send(req.auth)

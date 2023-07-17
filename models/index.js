@@ -36,9 +36,11 @@ db.sequelize = sequelize
 // GETTING EACH MODEL
 db.user = require('./userModel')(sequelize, DataTypes)
 db.role = require('./rolesModel')(sequelize, DataTypes)
+db.project = require('./projectsModel')(sequelize, DataTypes)
 
 
 //Foreign keys
+// Role ---- User
 
 db.role.hasMany(db.user,{
     foreignKey:'roleId',
@@ -47,7 +49,15 @@ db.role.hasMany(db.user,{
 db.user.belongsTo(db.role,{
     foreignKey:'roleId',
 })
-   
+
+//User --- Project
+    db.user.hasMany(db.project,{
+        foreignKey:'userId'
+    })
+
+    db.project.belongsTo(db.user,{
+        foreignKey: 'userId'
+    })
 
 
 // SYNCING DATA  BETWEEN API AND DB

@@ -12,7 +12,7 @@ module.exports =(sequelize, DataTypes)=>{
             allowNull: false,
             validate: {
                 isIn: [['admin', 'developer', 'client']],
-                max:3,
+               
               },
         }
     })

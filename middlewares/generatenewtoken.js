@@ -7,12 +7,12 @@ dotenv.config();
 
 module.exports = [auth, (req, res, next) => {
   try {
-    const refreshToken = req.headers.authorization.split(' ')[2];
+    const refreshToken = req.body.refreshToken;
     const decodedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const userId = decodedRefreshToken.userId;
     
     if (userId) {
-      const accessToken = req.headers.authorization.split(' ')[1];
+      const accessToken = req.body.accessToken;
       const decodedAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
       const expirationTime = decodedAccessToken.exp;
       
@@ -23,9 +23,8 @@ module.exports = [auth, (req, res, next) => {
       
       if (expirationTimeInSeconds <= timeBeforeRefresh) {
         const newAccessToken = jwt.sign({ userId: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-        req.headers.authorization = `Bearer ${newAccessToken}`;        
-        // Log the new authorization header
-        console.log(req.headers.authorization.split(' ')[1] ); 
+        res.json({newAccessToken :newAccessToken })
+        // Log the new authorization header 
       }
       
       req.data = {

@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const auth = require('./auth.js');
 
 // Load environment variables from .env file
 dotenv.config();
 
-module.exports = [auth, (req, res, next) => {
+exports.gnrtNewToken =  (req, res, next) => {
   try {
     const refreshToken = req.body.refreshToken;
     const decodedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
@@ -23,22 +22,16 @@ module.exports = [auth, (req, res, next) => {
       
       if (expirationTimeInSeconds <= timeBeforeRefresh) {
         const newAccessToken = jwt.sign({ userId: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-        res.json({newAccessToken :newAccessToken })
+        res.status(200).json({newAccessToken :newAccessToken })
         // Log the new authorization header 
+      
+
       }
-      
-      req.data = {
-        userId: userId,
-        accessToken: accessToken,
-        accessTokenExp: expirationTime,
-        expirationTime: expirationTimeInSeconds,
-      };
-      
-      next();
+            next();
     } else {
       throw new Error('Invalid user ID');
     }
   } catch (error) {
     res.status(403).json({ error: error.message });
   }
-}];
+};

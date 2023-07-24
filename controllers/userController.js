@@ -1,8 +1,12 @@
-const db = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fs = require('fs');
+
+const sendMail = require('../config/mailing.controller.js')
+const mailparser = require('mailparser'); 
+
+const db = require('../models');
 const  auth = require('../middlewares/auth.js')
 const User = db.user;
 const Role = db.role
@@ -52,8 +56,8 @@ exports.signup = async (req, res, next) => {
       const createdUser = await User.create(newUser);
       return res.status(200).json({ user: createdUser });
     }
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch (error) {
+    return res.status(500).json({error });
   }
 };
 
@@ -79,13 +83,40 @@ exports.login = async (req, res) => {
     const accesstoken =generateAccessToken(user)
 const refreshtoken = jwt.sign({ userId: user.uuid}, process.env.REFRESH_TOKEN_SECRET)
 console.log(user.username) 
-    res.status(200).json({ userId: user.uuid, userName: user.username , accessToken:accesstoken , refreshToken:refreshtoken, role: userRole});
+    res.status(200).json({ userId: user.id, userName: user.username , accessToken:accesstoken , refreshToken:refreshtoken, role: userRole});
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
  
 
-exports.getUser = auth, (req,res)=>{
-  res.send(req.auth)
+
+exports.getClients = async (req, res)=>{
+  try{
+    const clientRole =  await Role.findOne({where: {roleName : 'client'}})
+    const  clientRoleId = clientRole.id
+    const clientUsers = await  User.findAll({where:{roleId:clientRoleId}})
+    clientUsers ?  res.status(200).json({clients: clientUsers}) : res.status(404).json({message : 'No client found'})
+  }catch(err){
+    return res.status(500).json({ error: err.message });
+
+  }
 }
+
+
+exports.sendMail = async  (req,res) =>{
+  const userMailCrypted =     jwt.sign({ email: req.body.email}, process.env.USER_INFO_TOKEN) 
+
+  const html = `<a href="http://localhost:5713/auth/credentials/${userMailCrypted}">Me connecter</a>`;
+  const message =await mailparser.simpleParser(html).then((parsedMail) => parsedMail.html);
+
+  const recipient = req.body.email
+  const subject = 'Your Password'
+  const text =  message
+
+ try{  
+   sendMail(recipient, subject, text)  
+  res.status(200).json('success')
+}catch(error){res.status(500).json({error})}
+  
+} 

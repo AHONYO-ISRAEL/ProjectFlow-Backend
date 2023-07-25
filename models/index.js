@@ -39,8 +39,8 @@ db.role = require('./rolesModel')(sequelize, DataTypes)
 db.task = require('./taskModel')(sequelize, DataTypes)
 db.project = require('./projectsModel')(sequelize, DataTypes)
 db.developer = require('./developerModel')(sequelize,DataTypes)
-db.taskModel = require('./devTaskModel')(sequelize,DataTypes)
-db.devProject = require('./devProjectModel')(sequelize, DataTypes)
+
+db.section = require('./sectionModel')(sequelize, DataTypes)
 //Foreign keys
 // Role ---- User
 
@@ -86,14 +86,24 @@ db.developer.belongsToMany(db.task,{
     foreignKey:'developerId'
 })
 
-//Project --- Task
-db.project.hasMany(db.task, {
+//Project --- Section
+db.project.hasMany(db.section, {
     foreignKey: 'projectId'
 })
 
-db.task.belongsTo(db.project,{
+db.section.belongsTo(db.project,{
     foreignKey:'projectId'
 })
+
+//Section -- Task
+db.section.hasMany(db.task, {
+    foreignKey: 'sectionId'
+})
+
+db.task.belongsTo(db.section,{
+    foreignKey:'sectionId'
+})
+
 
 
 db.user.addHook('afterCreate', async (user , options)=>{

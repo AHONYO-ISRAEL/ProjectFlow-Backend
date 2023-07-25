@@ -102,6 +102,17 @@ exports.getClients = async (req, res)=>{
 
   }
 }
+exports.getDevs= async (req, res)=>{
+  try{
+    const devRole =  await Role.findOne({where: {roleName : 'developer'}})
+    const  devRoleId = devRole.id
+    const devUsers = await  User.findAll({where:{roleId:devRoleId}})
+    devUsers ?  res.status(200).json({clients: clientUsers}) : res.status(404).json({message : 'No Developer  found'})
+  }catch(err){
+    return res.status(500).json({ error: err.message });
+
+  }
+}
 
 
 exports.sendMail = async  (req,res) =>{

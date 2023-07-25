@@ -15,6 +15,14 @@ module.exports= (sequelize, DataTypes)=>{
           allowNull: true,
           defaultValue: DataTypes.NOW,
         },
+        durationWeeks: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
+        durationDays: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
         endDate: {
           type: DataTypes.DATE,
           allowNull: true,
@@ -23,7 +31,7 @@ module.exports= (sequelize, DataTypes)=>{
           type: DataTypes.STRING, 
           defaultValue: 'Not Started',
           validate:{
-            isIn :[['Not Started', 'In Progress', 'Completed']]
+            isIn :[['Not Started', 'In Progress', 'Completed', 'Suspended']]
           }
         },
         clientId:{

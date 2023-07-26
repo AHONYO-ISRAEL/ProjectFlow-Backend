@@ -10,6 +10,7 @@ const db = require('../models');
 const  auth = require('../middlewares/auth.js')
 const User = db.user;
 const Role = db.role
+const Developer = db.developer 
 
 
 // Load environment variables from .env file
@@ -41,17 +42,14 @@ exports.signup = async (req, res, next) => {
       return res.status(401).json('Email already registered. Please try logging in.');
     } else {
       const role = await Role.findOne({ where: { roleName: req.body.roleName } });
-      const roleUuid = role.uuid
       const roleId = role.id
        const hashedPassword = await bcrypt.hash(req.body.password, 10);
       const newUser = {
         username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
-        roleUuid: roleUuid,
         roleId: roleId
       };
-      console.log(roleId)
 
       const createdUser = await User.create(newUser);
       return res.status(200).json({ user: createdUser });
@@ -69,8 +67,8 @@ const generateAccessToken =(user)=>{
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email: req.body.email } });
-    const userRoleUuid =  user.roleUuid
-    const roleRow= await Role.findOne({where:{uuid: userRoleUuid}})
+    const userRoleId =  user.roleId
+    const roleRow= await Role.findOne({where:{id: userRoleId}})
     console.log(roleRow.id)
     const userRole = roleRow.roleName
     if (!user) {
@@ -104,10 +102,11 @@ exports.getClients = async (req, res)=>{
 }
 exports.getDevs= async (req, res)=>{
   try{
-    const devRole =  await Role.findOne({where: {roleName : 'developer'}})
+  const devRole =  await Role.findOne({where: {roleName : 'developer'}})
+  
     const  devRoleId = devRole.id
     const devUsers = await  User.findAll({where:{roleId:devRoleId}})
-    devUsers ?  res.status(200).json({clients: clientUsers}) : res.status(404).json({message : 'No Developer  found'})
+    devUsers ?  res.status(200).json({developers: devUsers}) : res.status(404).json({message : 'No Developer  found'})
   }catch(err){
     return res.status(500).json({ error: err.message });
 

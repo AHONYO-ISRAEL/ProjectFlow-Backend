@@ -11,7 +11,7 @@ module.exports= (sequelize, DataTypes)=>{
           allowNull: true,
         },
         startDate: {
-          type: DataTypes.DATE,
+          type: DataTypes.DATE, 
           allowNull: true,
           defaultValue: DataTypes.NOW,
         },

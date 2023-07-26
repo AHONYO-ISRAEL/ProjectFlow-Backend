@@ -39,7 +39,8 @@ db.role = require('./rolesModel')(sequelize, DataTypes)
 db.task = require('./taskModel')(sequelize, DataTypes)
 db.project = require('./projectsModel')(sequelize, DataTypes)
 db.developer = require('./developerModel')(sequelize,DataTypes)
-
+db.taskDev= require('./taskDevModel')(sequelize,DataTypes)
+db.projectDev= require('./projectDevModel')(sequelize,DataTypes)
 db.section = require('./sectionModel')(sequelize, DataTypes)
 //Foreign keys
 // Role ---- User
@@ -64,26 +65,28 @@ db.user.belongsTo(db.role,{
 
 // Developer ---- Project 
 db.project.belongsToMany(db.developer,{
-    through: 'DevProject',
-    foreignKey: 'projectId',
+    through: db.projectDev,
+foreignKey:'projectId'
 })
 
 
 db.developer.belongsToMany(db.project,{
-    through: 'DevProject',
-    foreignKey:'developerId'
+    through: db.projectDev,
+    foreignKey:'devId'
 })
 
 
 //Developer ---- Task
 db.task.belongsToMany(db.developer,{
-    through: 'DevTask',
+    through: db.taskDev,
     foreignKey: 'taskId'
+
 })
 
 db.developer.belongsToMany(db.task,{
-    through: 'DevTask',
-    foreignKey:'developerId'
+    through: db.taskDev,
+    foreignKey:'devId'
+
 })
 
 //Project --- Section
@@ -108,10 +111,9 @@ db.task.belongsTo(db.section,{
 
 db.user.addHook('afterCreate', async (user , options)=>{
     try {
-        const role = await db.role.findOne({where:{uuid: user.roleUuid}})
+        const role = await db.role.findOne({where:{id: user.roleId}})
      if(role && role.roleName === 'developer'){
         await db.developer.create({
-            devUuid: user.uuid,
             devId: user.id,
             email: user.email,
         })
@@ -128,7 +130,6 @@ db.sequelize.sync({force : false})
 })
 
 //HOOKS
-
 
 
 

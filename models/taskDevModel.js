@@ -1,7 +1,9 @@
+module.exports = (sequelize, DataTypes) => {
+    const taskDev= sequelize.define('taskDev', {
 
-module.exports=(sequelize, DataTypes)=>{
-const TaskDev = sequelize.define('taskDev', {
 
-  })
-return TaskDev
-} 
+    }) 
+    return taskDev
+}
+
+    

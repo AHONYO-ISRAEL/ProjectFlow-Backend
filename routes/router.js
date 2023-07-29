@@ -19,7 +19,8 @@ router.post('/auth/refreshAccessToken', gnrt.gnrtNewToken);
 // Admin Actions
 router.get('/admin/client/get', userCtrl.getClients);
 router.get('/admin/dev/get', userCtrl.getDevs);
-
+router.get('/admin/client/get/project', userCtrl.getClientsWithProjects)
+router.get('/admin/dev/get/project', userCtrl.getDevsInfo)
 // Role Controller
 const roleCtrl = require('../controllers/roleController');
 router.post('/role', roleCtrl.postRole);
@@ -37,7 +38,7 @@ const sectionCtrl = require('../controllers/sectionController');
 router.post('/admin/section/add', sectionCtrl.createSection);
 router.get('/admin/section/get', sectionCtrl.getAllSections);
 router.get('/admin/section/get/:projectId', sectionCtrl.getProjectSections);
-
+router.get('/admin/sections/get/all/:projectId', sectionCtrl.getSectionsWithTasksAndDevs)
 // Task Controller
 const taskCtrl = require('../controllers/taskController');
 router.post('/admin/task/add', taskCtrl.createTask);
@@ -52,6 +53,19 @@ router.get('/admin/project/:projectId/dev', projectDevCtrl.getProjectDevs);
 const taskDevCtrl = require('../controllers/taskDevController');
 router.post('/admin/task/assign/dev', taskDevCtrl.createTaskDev);
 router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
+router.get('/admin/section/:sectionId/tasks/dev', taskDevCtrl.getAllTasksWithDevs);
+router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
+
+
+// Developer Controller 
+const devCtrl = require('../controllers/developerController')
+router.get('/admin/dev/all/get', devCtrl.getDevelopersWithProjectsAndTasks)
+router.get('/admin/dev/task/get', devCtrl.getDevWithTasks)
+
+ 
+
+const test = require('../controllers/test');
+router.get('/test/:projectId', test.getProjectInfo)
 
 // Test Route with Authentication Middleware
 router.get('/auth/test', auth, (req, res) => {

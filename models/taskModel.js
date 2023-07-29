@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: [['Not Started', 'In Progress', 'Completed', 'Suspended']],
       },
-    }, // Closing brace for the status field was missing here
+    }, 
     effectiveEndDate: {
       type: DataTypes.DATE,
       allowNull: true,

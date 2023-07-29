@@ -8,7 +8,7 @@ const User = db.user
 
 exports.createTaskDev = async (req, res) => {
     try {
-        const searchDeveloper = await Developer.findOne({where:{devId:req.body.devId}})
+        const searchDeveloper = await Developer.findOne({where:{userId:req.body.userId}})
         const  searchTask = await Task.findOne({where:{id: req.body.taskId}})
         if(!searchDeveloper || !searchTask){
             res.status(404).json({message: 'Task or Developer not found '})
@@ -27,6 +27,7 @@ exports.createTaskDev = async (req, res) => {
                 }
                 TaskDev.create(newAssignment)
                 res.status(201).json({message: 'Developer assigned successfully'})
+                
             }
         }
     } catch (error) {
@@ -35,24 +36,93 @@ exports.createTaskDev = async (req, res) => {
 };
 
 
+
+
 exports.getTaskDevs = async (req, res) => {
-    try {
+
+try {
         const taskId = req.params.taskId;
-        const searchTaskDevs = await TaskDev.findAll({ where: { taskId: taskId } });
 
-        if (searchTaskDevs.length === 0) {
-            return res.status(404).json({ message: 'No developer has been assigned to this Task.' });
-        } else {
-            const devIds = searchTaskDevs.map(dev => dev.devId);
-            const devTaskUsers = await User.findAll({ where: { id: devIds } });
-
-            if (devTaskUsers.length > 0) {
-                return res.status(200).json({ TaskDevs: devTaskUsers });
-            } else {
-                return res.status(404).json({ message: 'No users found for the developers in this Task.' });
-            }
-        }
+      const task = await  Task.findByPk(taskId, {
+        attributes: ['id', 'taskName', 'status'],
+        include: [ 
+          {
+            model:  Developer,
+            attributes: ['id', 'email'],
+            include: [
+              {
+                model: User,
+                attributes: ['id', 'username'],
+              },
+            ],
+          },
+        ],
+      });
+  
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+  
+      res.status(200).json(task);
     } catch (error) {
-        return res.status(500).json({ message: 'Error getting the developers in this Task: ' + error });
+      res.status(500).json({ error: 'Internal Server Error : '+error });
     }
 };
+
+exports.getAllTasksWithDevs = async (req, res) => {
+    try {
+      const sectionId =req.params.sectionId
+      const tasks = await Task.findAll({
+        where :{sectionId: sectionId},
+        attributes: ['id', 'taskName', 'status'],
+        include: [
+          {
+            model: Developer,
+            attributes: ['id', 'email'],
+            include: [
+              {
+                model: User,
+                attributes: ['id', 'username'],
+              },
+            ],
+          },
+        ],
+      });
+  
+      res.status(200).json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error: ' + error });
+    }
+  };
+  
+
+  exports.getTaskWithDevs = async (req, res) => {
+    try {
+      const taskId = req.params.taskId;
+  
+      const task = await Task.findByPk(taskId, {
+        attributes: ['id', 'taskName', 'status'],
+        include: [
+          {
+            model: Developer,
+            attributes: ['id', 'email'],
+            include: [
+              {
+                model: User,
+                attributes: ['id', 'username'],
+              },
+            ],
+          },
+        ],
+      });
+  
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+  
+      res.status(200).json(task);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error: ' + error });
+    }
+  };
+  

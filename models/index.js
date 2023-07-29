@@ -36,13 +36,17 @@ db.sequelize = sequelize
 // GETTING EACH MODEL
 db.user = require('./userModel')(sequelize, DataTypes)
 db.role = require('./rolesModel')(sequelize, DataTypes)
-db.task = require('./taskModel')(sequelize, DataTypes)
-db.project = require('./projectsModel')(sequelize, DataTypes)
 db.developer = require('./developerModel')(sequelize,DataTypes)
+db.project = require('./projectsModel')(sequelize, DataTypes)
+db.section = require('./sectionModel')(sequelize, DataTypes)
+db.task = require('./taskModel')(sequelize, DataTypes)
 db.taskDev= require('./taskDevModel')(sequelize,DataTypes)
 db.projectDev= require('./projectDevModel')(sequelize,DataTypes)
-db.section = require('./sectionModel')(sequelize, DataTypes)
 //Foreign keys
+
+db.user.hasOne(db.developer, {foreignKey:'userId'})
+db.developer.belongsTo(db.user, {through:'userId'})
+
 // Role ---- User
 
 db.role.hasMany(db.user,{
@@ -66,27 +70,27 @@ db.user.belongsTo(db.role,{
 // Developer ---- Project 
 db.project.belongsToMany(db.developer,{
     through: db.projectDev,
-foreignKey:'projectId'
+    foreignKey:'projectId'
+
 })
 
 
 db.developer.belongsToMany(db.project,{
     through: db.projectDev,
     foreignKey:'devId'
+
 })
 
 
 //Developer ---- Task
 db.task.belongsToMany(db.developer,{
     through: db.taskDev,
-    foreignKey: 'taskId'
-
+foreignKey:'taskId'
 })
 
 db.developer.belongsToMany(db.task,{
     through: db.taskDev,
     foreignKey:'devId'
-
 })
 
 //Project --- Section
@@ -114,7 +118,7 @@ db.user.addHook('afterCreate', async (user , options)=>{
         const role = await db.role.findOne({where:{id: user.roleId}})
      if(role && role.roleName === 'developer'){
         await db.developer.create({
-            devId: user.id,
+            userId: user.id,
             email: user.email,
         })
      }

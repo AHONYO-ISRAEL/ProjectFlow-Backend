@@ -1,9 +1,12 @@
 const db = require('../models');
 const Section = db.section
+const Task = db.task
+const Developer = db.developer
+const User = db.user
 
 exports.createSection = async (req, res) =>{
     try{
-        const section =  await Section.findOne({where:{sectionName: req.body.sectionName}})
+        const section =  await Section.findOne({where:{sectionName: req.body.sectionName, projectId: req.body.projectId}})
 if(section){
     res.status(400).json({message : 'This section is already created'})
 }else{
@@ -40,6 +43,36 @@ exports.getProjectSections = async (req, res) => {
       }
     } catch (error) {
       res.status(500).json({ error });
+    }
+  };
+  
+  exports.getSectionsWithTasksAndDevs = async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        const sections = await Section.findAll({
+        where: { projectId: projectId },
+        attributes: ['id', 'name'],
+        include: [
+          {
+            model: Task,
+            attributes: ['id', 'taskName'],
+          },
+          {
+            model: Developer,
+            attributes: ['id', 'email'],
+            include: [
+              {
+                model: User,
+                attributes: ['id', 'username'],
+              },
+            ],
+          },
+        ],
+      });
+  
+      res.status(200).json(sections);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error: ' + error });
     }
   };
   

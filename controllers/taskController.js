@@ -12,7 +12,9 @@ exports.createTask=  async(req, res)=>{
                 ...restOfData
             }
             await Task.create(newTask)
-            res.status(200).json({task : newTask})
+            const newCreatedTask = await Task.findOne({where: {taskName: req.body.taskName}})
+            res.status(200).json({task : newCreatedTask})
+
         }else{
             res.status(400).json({message : 'Task with this name already exists'})
         }

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fs = require('fs');
-
+const { Op } = require('sequelize');
 const sendMail = require('../config/mailing.controller.js')
 const mailparser = require('mailparser'); 
 
@@ -11,8 +11,9 @@ const  auth = require('../middlewares/auth.js')
 const User = db.user;
 const Role = db.role
 const Developer = db.developer 
-
-
+const Project = db.project
+const Task = db.task
+const Section = db.section
 // Load environment variables from .env file
 dotenv.config();
 
@@ -100,6 +101,31 @@ exports.getClients = async (req, res)=>{
 
   }
 }
+
+exports.getClientsWithProjects = async (req, res) => {
+  try {
+    const clientRole = await Role.findOne({ where: { roleName: 'client' } });
+    const clientRoleId = clientRole.id;
+
+    const clients = await User.findAll({
+      where: { roleId: clientRoleId },
+      include: [
+        {
+          model: Project,
+          attributes: ['id', 'name', 'description'],
+          through: { attributes: [] }, // Exclude the join table attributes
+          as: 'projects', // Alias for the association to avoid naming conflict
+        },
+      ],
+    });
+
+    res.status(200).json(clients);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error ' + error });
+  }
+};
+
+
 exports.getDevs= async (req, res)=>{
   try{
   const devRole =  await Role.findOne({where: {roleName : 'developer'}})
@@ -112,6 +138,40 @@ exports.getDevs= async (req, res)=>{
 
   }
 }
+
+exports.getDevsInfo = async (req, res) => {
+  try {
+    const developers = await Developer.findAll({
+      attributes: ['id', 'email'],
+      include: [
+        { 
+          model: User,
+          attributes: ['id', 'username'],
+        },
+        {
+          model: Project,
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: Section,
+              attributes: ['id', 'name'],
+              include: [
+                {
+                  model: Task,
+                  attributes: ['id', 'name'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    res.json(developers);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error ' + error });
+  }
+};
 
 
 exports.sendMail = async  (req,res) =>{

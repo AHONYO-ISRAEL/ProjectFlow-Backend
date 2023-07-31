@@ -43,7 +43,7 @@ router.get('/admin/sections/get/all/:projectId', sectionCtrl.getSectionsWithTask
 const taskCtrl = require('../controllers/taskController');
 router.post('/admin/task/add', taskCtrl.createTask);
 router.get('/admin/task/get/:status/:sectionId', taskCtrl.getStatusBasedSectionTasks);
-
+router.post('/task/:taskId/update/status', taskCtrl.updateTaskStatus)
 // Project Developer Controller
 const projectDevCtrl = require('../controllers/projectDevController');
 router.post('/admin/project/assign/dev', projectDevCtrl.createProjectDev);
@@ -61,6 +61,11 @@ router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
 const devCtrl = require('../controllers/developerController')
 router.get('/admin/dev/all/get', devCtrl.getDevelopersWithProjectsAndTasks)
 router.get('/admin/dev/task/get', devCtrl.getDevWithTasks)
+
+
+// Developer actions
+router.get('/dev/:userId/tasks/get', devCtrl.getAssignedTasks)
+router.get('/dev/:userId/projects/get', devCtrl.getAssignedProjects)
 
  
 

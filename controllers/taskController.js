@@ -23,6 +23,22 @@ exports.createTask=  async(req, res)=>{
     }
 }
 
+exports.updateTask = async (req, res)=>{
+try{
+const taskId = req.params.taskId
+const taskData = req.body
+const searchTask =  await Task.findOne({where:{id:taskId}})
+if(!searchTask){
+  res.status(404).json({message : 'task not found'})
+}else{
+const updatedTask = await Task.update(taskData, {where:{id:taskId}})
+res.status(200).json({updatedTask})
+}
+}catch(error){
+  res.status(500).json({ message: 'Adding of task failed  '+ error })
+
+}
+}
 
 exports.getStatusBasedSectionTasks = async (req, res) => {
     try {
@@ -43,7 +59,7 @@ exports.getStatusBasedSectionTasks = async (req, res) => {
 exports.updateTaskStatus = async(req,res)=>{
   try{
     const taskId = req.params.taskId
-    Task.update({status :'In Progress'},{where:{id: taskId}})
+    Task.update({status :req.params.newStatus},{where:{id: taskId}})
     res.status(200).json({message:'Task started successfully'})
   }catch(error){
     res.status(500).json({error})

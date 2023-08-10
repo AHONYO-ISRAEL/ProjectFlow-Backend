@@ -2,9 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fs = require('fs');
-const { Op } = require('sequelize');
 const sendMail = require('../config/mailing.controller.js')
-const mailparser = require('mailparser'); 
 
 const db = require('../models');
 const  auth = require('../middlewares/auth.js')
@@ -174,19 +172,39 @@ exports.getDevsInfo = async (req, res) => {
 };
 
 
-exports.sendMail = async  (req,res) =>{
+exports.sendMail = async  (req,res, next) =>{
   const userMailCrypted =     jwt.sign({ email: req.body.email}, process.env.USER_INFO_TOKEN) 
 
-  const html = `<a href="http://localhost:5713/auth/credentials/${userMailCrypted}">Me connecter</a>`;
-  const message =await mailparser.simpleParser(html).then((parsedMail) => parsedMail.html);
+  const url = `http://localhost:5173/auth/credentials?userToken = ${userMailCrypted}`
+ const message="Se connecter avec mon compte"
 
   const recipient = req.body.email
-  const subject = 'Your Password'
-  const text =  message
+  const subject = 'Set Your  Password'
+  const text =  message 
+  const html ="<a href=  ' " + url   +    " '>Me connecter</a>";
 
  try{  
-   sendMail(recipient, subject, text)  
+  if(sendMail(recipient, subject, text, html))
   res.status(200).json('success')
 }catch(error){res.status(500).json({error})}
-  
+  next()
 } 
+
+
+exports.getUserByToken = async (req, res) => {
+  try {
+    const encryptedToken = req.query.userToken; // Get encrypted token from URL query parameter
+    const decryptedToken = jwt.verify(encryptedToken, process.env.USER_INFO_TOKEN);
+    const user = await User.findOne({ email: decryptedToken.email });
+    if (user) {
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Invalid or expired token' });
+  }
+};
+
+
+
+
+

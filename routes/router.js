@@ -1,6 +1,7 @@
 const express = require('express');
 const auth = require('../middlewares/auth.js');
 const gnrt = require('../middlewares/generatenewtoken');
+const upload =  require('../middlewares/multerConfig')
 
 const router = express.Router();
 
@@ -32,7 +33,8 @@ router.get('/admin/project/get', projectCtrl.getAllProject);
 router.get('/admin/project/progress/get', projectCtrl.getStartedProject);
 router.get('/admin/project/get/:id', projectCtrl.getAProject);
 router.post('/admin/project/update/:id', projectCtrl.updateProjectWithClient);
-
+//router.post('/admin/project/:id')
+router.get('/admin/project/:projectId/tasks/get', projectCtrl.getTasksForProject)
 // Section Controller
 const sectionCtrl = require('../controllers/sectionController');
 router.post('/admin/section/add', sectionCtrl.createSection);
@@ -43,7 +45,9 @@ router.get('/admin/sections/get/all/:projectId', sectionCtrl.getSectionsWithTask
 const taskCtrl = require('../controllers/taskController');
 router.post('/admin/task/add', taskCtrl.createTask);
 router.get('/admin/task/get/:status/:sectionId', taskCtrl.getStatusBasedSectionTasks);
-router.post('/task/:taskId/update/status', taskCtrl.updateTaskStatus)
+router.post('/task/:taskId/update/status/:newStatus', taskCtrl.updateTaskStatus)
+router.post('/admin/task/:taskId/update', taskCtrl.updateTask)
+
 // Project Developer Controller
 const projectDevCtrl = require('../controllers/projectDevController');
 router.post('/admin/project/assign/dev', projectDevCtrl.createProjectDev);
@@ -55,26 +59,34 @@ router.post('/admin/task/assign/dev', taskDevCtrl.createTaskDev);
 router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
 router.get('/admin/section/:sectionId/tasks/dev', taskDevCtrl.getAllTasksWithDevs);
 router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
-
+router.get('/developer/:userId/project/:projectId/sections/tasks/get', taskDevCtrl.getAssignedSectionsAndTasks)
 
 // Developer Controller 
 const devCtrl = require('../controllers/developerController')
 router.get('/admin/dev/all/get', devCtrl.getDevelopersWithProjectsAndTasks)
 router.get('/admin/dev/task/get', devCtrl.getDevWithTasks)
-
-
+router.get('/admin/dev/:id/tasks/unassigned/get', devCtrl.getUnassignedTasks)
+ 
 // Developer actions
 router.get('/dev/:userId/tasks/get', devCtrl.getAssignedTasks)
-router.get('/dev/:userId/projects/get', devCtrl.getAssignedProjects)
+router.get('/dev/:id/projects/get', devCtrl.getAssignedProjects)
 
- 
+
+//Client Actions
+router.get('/client/:clientId/project/get', projectCtrl.getClientProject)
 
 const test = require('../controllers/test');
 router.get('/test/:projectId', test.getProjectInfo)
 
+   
+//Publication
+const pubCtrl = require('../controllers/publicationController')
+router.post('/publication/create',  upload, pubCtrl.createPub)
+router.get('/user/:userId/publication/get', pubCtrl.getPublications)
+router.get('/project/:projectId/publications/get', pubCtrl.getProjectPublications)
 // Test Route with Authentication Middleware
 router.get('/auth/test', auth, (req, res) => {
   res.send(req.data);
-});
+}); 
 
 module.exports = router;

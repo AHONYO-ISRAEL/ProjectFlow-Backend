@@ -46,7 +46,7 @@ const createTransport = async () => {
     }
   };
 
-  const sendMail = async (recipient, subject, text) => {
+  const sendMail = async (recipient, subject, text, html) => {
     try {
       const emailTransporter = await createTransport();
       if (!emailTransporter) {
@@ -58,7 +58,8 @@ const createTransport = async () => {
         from: 'edpflow.noreply@gmail.com',
         to: recipient,
         subject: subject,
-        text: text, // Use the generated HTML content
+        text: text,
+        html:html,
       };
   
       await emailTransporter.sendMail(mailOptions);

@@ -7,20 +7,12 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
     },
-    startDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     durationDays: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
     durationHours: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    endDate: {
-      type: DataTypes.DATE,
       allowNull: true,
     },
     status: {

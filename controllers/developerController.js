@@ -51,9 +51,8 @@ exports.getDevWithTasks= async (req, res) => {
           model: User,
           attributes: ['id', 'username'],
         },
-        {
+        {      
           model: Task,
-          attributes: ['id', 'taskName','status'],
           through: {
             attributes: [], // Exclude the join table attributes from the result
           },
@@ -76,11 +75,9 @@ exports.getDevWithTasks= async (req, res) => {
 
 exports.getAssignedTasks= async (req, res) => {
   try {
-  
-    const userId = req.params.userId
+   const userId = req.params.userId
     const dev =  await Developer.findOne({where:{userId: userId}, attributes:['id']})
     const devId = dev.id
-    console.log(devId)
     const developers = await Developer.findOne({
       where:{id: devId},
       attributes: ['id', 'email'],
@@ -91,6 +88,7 @@ exports.getAssignedTasks= async (req, res) => {
         },
         {
           model: Task,
+          where:{status:'Not Started'},
           attributes: ['id', 'taskName','status'],
           through: {
             attributes: [], 
@@ -102,6 +100,34 @@ exports.getAssignedTasks= async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
+};
+exports.getUnassignedTasks= async (req, res) => {
+  try {
+
+     const devId = req.params.id
+     const unassignedTasks = await Developer.findAll({
+       attributes: [],
+       include: [
+         {
+           model: User,
+           attributes: [],
+         },
+         {
+           model: Task,
+           where:{status:'Not Started'},
+           attributes: ['id', 'taskName','status'],
+           through: {
+             attributes: [], 
+             where: { devId:{[Op.not]: devId }}
+           },
+         },
+       ],
+     });
+     
+   res.status(200).json({unassignedTasks});
+   } catch (error) {
+     res.status(500).json({ error: 'Internal Server Error: ' + error });
+   }
 };
 
 
@@ -127,4 +153,71 @@ exports.getAssignedProjects = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error: ' + error.message });
   }
-};
+};    
+/*
+exports.getUnassignedTasks  = async (req, res) =>{
+  try{
+    let unassignedTasks = []
+const devId = req.params.id
+const unassigned  = await TaskDev.findAll()
+const unassignedDevTasks = unassigned.filter((task)=>task.devId !==parseInt(devId) )
+const tasks  = await  Task.findAll()
+unassignedDevTasks.map((unassignedDevTask)=>(
+   unassignedTasks =  tasks.filter((task)=>task.id !==unassignedDevTask.taskId )
+
+))
+res.status(200).json({unassignedTasks}) 
+  }catch(error){
+    res.status(500).json({ error: 'Internal Server Error: ' + error.message });
+
+  }
+}
+*/
+// exports.getUnassignedTas= async(req,res)=>{
+//   try{
+// const devId = req.params.id
+// const devUnassigned = Developer.findOne({
+//   where: {id: devId},
+//   include:[{
+// model: Task,
+// through:{
+//   where: { devId:{[Op.not]: devId }}
+// }
+//     },
+ 
+//   ]}
+
+// )
+// res.status(200).json({devUnassigned})
+
+//   }catch(error){
+//     res.status(500).json({ error: 'Internal Server Error: ' + error });
+//   }
+// }
+
+
+// exports.getUnassignedTask = async (req, res) => {
+//   try {
+//     const devId = req.params.id;
+
+//     // Find the tasks that are not assigned to the specified developer
+//     const unassignedTasks = await Task.findAll({
+//       where: {
+//         '$developers.id$': { [Op.not]: devId } // Filter tasks not associated with the developer
+//       },
+//       include: [
+//         {
+//           model: Developer,
+//           as: 'developers',
+//           required: false,
+//           attributes: [],
+//           where: { id: devId }
+//         }
+//       ]
+//     });
+
+//     res.status(200).json(unassignedTasks);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Internal Server Error: ' + error });
+//   }
+// };

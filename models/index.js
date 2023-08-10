@@ -1,7 +1,6 @@
 const dbConfig = require('../config/dbConfig.js')
 const {Sequelize, DataTypes} = require('sequelize')
 
-
 //  CONNECTION TO THE DATABASE 
 const sequelize = new Sequelize(
     dbConfig.DB,
@@ -42,8 +41,45 @@ db.section = require('./sectionModel')(sequelize, DataTypes)
 db.task = require('./taskModel')(sequelize, DataTypes)
 db.taskDev= require('./taskDevModel')(sequelize,DataTypes)
 db.projectDev= require('./projectDevModel')(sequelize,DataTypes)
+db.publication= require('./publicationModel')(sequelize,DataTypes)
+
 //Foreign keys
 
+
+//Project --- Publication
+db.project.hasMany(db.publication, {
+    foreignKey:'projectId'      
+})
+
+db.publication.belongsTo(db.project,{
+    foreignKey:'projectId'
+})
+//Section --- Publication
+db.section.hasMany(db.publication, {
+    foreignKey:'sectionId'
+})
+
+db.publication.belongsTo(db.section,{
+    foreignKey:'sectionId'
+})
+//Task --- Publication
+db.task.hasMany(db.publication, {
+    foreignKey:'taskId'
+})
+
+db.publication.belongsTo(db.task,{
+    foreignKey:'taskId'
+})
+//User --- Publication
+db.user.hasMany(db.publication, {
+    foreignKey:'userId'
+})
+
+db.publication.belongsTo(db.user,{
+    foreignKey:'userId'
+})
+
+//User --- Developer
 db.user.hasOne(db.developer, {foreignKey:'userId'})
 db.developer.belongsTo(db.user, {through:'userId'})
 
@@ -81,7 +117,7 @@ db.developer.belongsToMany(db.project,{
 
 })
 
-
+   
 //Developer ---- Task
 db.task.belongsToMany(db.developer,{
     through: db.taskDev,
@@ -136,7 +172,7 @@ db.sequelize.sync({force : false})
 //HOOKS
 
 
-
+   
 
 
 module.exports = db

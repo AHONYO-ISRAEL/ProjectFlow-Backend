@@ -4,8 +4,7 @@ module.exports=(sequelize, DataTypes)=>{
         sectionName: {
             type: DataTypes.STRING,
             allowNull: false,
-         
-          },
+            },
           description: {
             type: DataTypes.TEXT,
             allowNull: true,

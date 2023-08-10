@@ -4,7 +4,7 @@ const TaskDev = db.taskDev
 const Task = db.task
 const Developer = db.developer
 const User = db.user
-
+const Section = db.section
 
 exports.createTaskDev = async (req, res) => {
     try {
@@ -74,7 +74,6 @@ exports.getAllTasksWithDevs = async (req, res) => {
       const sectionId =req.params.sectionId
       const tasks = await Task.findAll({
         where :{sectionId: sectionId},
-        attributes: ['id', 'taskName', 'status'],
         include: [
           {
             model: Developer,
@@ -95,6 +94,37 @@ exports.getAllTasksWithDevs = async (req, res) => {
     }
   };
   
+  exports.getAssignedSectionsAndTasks = async (req, res) => {
+    try {
+      const sections = await Section.findAll({
+        where:{projectId:req.params.projectId},
+        attributes: ['id', 'sectionName'],
+        include: [
+          {
+            model: Task,
+            attributes: ['id', 'taskName', 'status'],
+            include: [
+              {
+                model: Developer,
+                where:{userId:req.params.userId},
+                attributes: ['id', 'email'],
+                include: [
+                  {
+                    model: User,
+                    attributes: ['id', 'username'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+  
+      res.status(200).json(sections);
+    }  catch (error) {
+      res.status(500).json({ error: 'Internal Server Error: ' + error });
+    }
+  };
 
   exports.getTaskWithDevs = async (req, res) => {
     try {

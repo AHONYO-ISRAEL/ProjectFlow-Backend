@@ -1,4 +1,6 @@
 const db = require('../models');
+const path = require('path');
+const fs = require('fs/promises'); 
 const Publication = db.publication
 const { Op } = require('sequelize');
 const User = db.user
@@ -6,12 +8,12 @@ const User = db.user
 
 exports.createPub = async (req, res) => {
   try {
-    const { title, content, fileLink } = req.body;
+    const { title, content } = req.body;
 
     const newPublication = await Publication.create({
       title: title,
       content: content,
-      fileLink: fileLink,
+      fileLink: req.filename,
       userId: req.body.userId,
       projectId: req.body.projectId,
       sectionId: req.body.sectionId,
@@ -49,6 +51,7 @@ exports.getPublications = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
 };
+
 
 exports.getProjectPublications = async(req, res)=>{
   try {

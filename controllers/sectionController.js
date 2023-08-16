@@ -51,23 +51,14 @@ exports.getProjectSections = async (req, res) => {
         const projectId = req.params.projectId;
         const sections = await Section.findAll({
         where: { projectId: projectId },
-        attributes: ['id', 'name'],
+        attributes: ['id', 'sectionName'],
         include: [
           {
             model: Task,
-            attributes: ['id', 'taskName'],
+            attributes: ['id', 'taskName', 'status'],
           },
-          {
-            model: Developer,
-            attributes: ['id', 'email'],
-            include: [
-              {
-                model: User,
-                attributes: ['id', 'username'],
-              },
-            ],
-          },
-        ],
+        
+],
       });
   
       res.status(200).json(sections);

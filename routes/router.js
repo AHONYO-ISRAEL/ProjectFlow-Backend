@@ -81,7 +81,10 @@ router.get('/test/:projectId', test.getProjectInfo)
    
 //Publication
 const pubCtrl = require('../controllers/publicationController')
-router.post('/publication/create',  upload, pubCtrl.createPub)
+router.post('/publication/create',  upload, (req, res, next) => {
+  req.filename = req.file.filename; 
+  next()
+}, pubCtrl.createPub)
 router.get('/user/:userId/publication/get', pubCtrl.getPublications)
 router.get('/project/:projectId/publications/get', pubCtrl.getProjectPublications)
 // Test Route with Authentication Middleware

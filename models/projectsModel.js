@@ -15,14 +15,6 @@ module.exports= (sequelize, DataTypes)=>{
           allowNull: true,
           defaultValue: DataTypes.NOW,
         },
-        durationWeeks: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
-        },
-        durationDays: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
-        },
         endDate: {
           type: DataTypes.DATE,
           allowNull: true,

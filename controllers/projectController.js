@@ -147,6 +147,6 @@ exports.getTasksForProject = async (req, res) => {
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
-    res.status(500).json({ error: 'An error occurred while fetching tasks' });
+    res.status(500).json({ error: 'An error occurred while fetching tasks' ,error});
   }
 };

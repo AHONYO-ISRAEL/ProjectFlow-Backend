@@ -134,7 +134,7 @@ exports.getUnassignedTasks= async (req, res) => {
 
 exports.getAssignedProjects = async (req, res) => {
   try {
-    const userId = req.params.userId
+    const userId = req.params.id
     const dev =  await Developer.findOne({where:{userId: userId}, attributes:['id']})
     const devId = dev.id
     const developer = await Developer.findByPk(devId, {

@@ -53,15 +53,16 @@ exports.getPublications = async (req, res) => {
 };
 
 
-exports.getProjectPublications = async(req, res)=>{
+exports.getProjectPublications = async (req, res) => {
   try {
     const projectId = req.params.projectId;
 
     const publications = await Publication.findAll({
       include: [{ model: User, attributes: ['id', 'username', 'email'] }],
       where: {
-      projectId:projectId
-      }
+        projectId: projectId
+      },
+      order: [['createdAt', 'DESC']] // Order by createdAt in descending order
     });
 
     if (publications.length === 0) {
@@ -72,4 +73,5 @@ exports.getProjectPublications = async(req, res)=>{
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
-}
+};
+ 

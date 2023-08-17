@@ -19,6 +19,10 @@ module.exports= (sequelize, DataTypes)=>{
           type: DataTypes.DATE,
           allowNull: true,
         },
+      /*  effectiveEndDate: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },*/
         status: {
           type: DataTypes.STRING, 
           defaultValue: 'Not Started',

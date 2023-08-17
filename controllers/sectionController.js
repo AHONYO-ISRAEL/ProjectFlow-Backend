@@ -35,7 +35,7 @@ exports.getProjectSections = async (req, res) => {
     try {
       const projectId = req.params.projectId;
       const projectSections = await Section.findAll({ where: { projectId: projectId } });
-  
+   
       if (projectSections.length === 0) {
         res.status(204).json({ message: 'No sections found for the requested project' });
       } else {

@@ -15,6 +15,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    startDate: {
+      type: DataTypes.DATE, 
+      allowNull: true,
+   
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     status: {
       type: DataTypes.STRING,
       defaultValue: 'Not Started',
@@ -22,10 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         isIn: [['Not Started', 'In Progress', 'Completed', 'Suspended']],
       },
     }, 
-    effectiveEndDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+
   });
 
   return Task;

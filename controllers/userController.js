@@ -189,11 +189,11 @@ exports.sendMail = async  (req,res, next) =>{
 }catch(error){res.status(500).json({error})}
   next()
 } 
-
+ 
 
 exports.getUserByToken = async (req, res) => {
   try {
-    const encryptedToken = req.query.userToken; // Get encrypted token from URL query parameter
+    const encryptedToken = req.query.userToken;
     const decryptedToken = jwt.verify(encryptedToken, process.env.USER_INFO_TOKEN);
     const user = await User.findOne({ email: decryptedToken.email });
     if (user) {

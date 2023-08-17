@@ -55,11 +55,11 @@ exports.getStatusBasedSectionTasks = async (req, res) => {
       res.status(500).json({ message: 'Task fetching failed ' + error });
     }
   };
-  
+    
 exports.updateTaskStatus = async(req,res)=>{
   try{
     const taskId = req.params.taskId
-    Task.update({status :req.params.newStatus},{where:{id: taskId}})
+    Task.update({status :req.params.newStatus, startDate : req.body.startDate},{where:{id: taskId}})
     res.status(200).json({message:'Task started successfully'})
   }catch(error){
     res.status(500).json({error})

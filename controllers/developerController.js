@@ -84,7 +84,7 @@ exports.getAssignedTasks= async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'username'],
+          attributes: ['id', 'username'], 
         },
         {
           model: Task,
@@ -101,10 +101,40 @@ exports.getAssignedTasks= async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
 };
+exports.getAllAssignedTasks= async (req, res) => {
+  try {
+   const userId = req.params.userId
+    const dev =  await Developer.findOne({where:{userId: userId}, attributes:['id']})
+    const devId = dev.id
+    const developers = await Developer.findOne({
+      where:{id: devId},
+      attributes: ['id', 'email'],
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'username'], 
+        },
+        {
+          model: Task,
+       
+          through: {
+            attributes: [], 
+          },
+        },
+      ],
+    });
+  res.status(200).json({developers});
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error: ' + error });
+  }
+};
+
+
+
 exports.getUnassignedTasks= async (req, res) => {
   try {
 
-     const devId = req.params.id
+     const devId = parseInt(req.params.id)
      const unassignedTasks = await Developer.findAll({
        attributes: [],
        include: [
@@ -141,6 +171,7 @@ exports.getAssignedProjects = async (req, res) => {
       include: [
         {
           model: Project,
+          attributes:['id','name','status','description', 'endDate']
         },
       ],
     });

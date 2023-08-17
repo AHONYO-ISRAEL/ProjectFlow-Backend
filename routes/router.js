@@ -69,6 +69,7 @@ router.get('/admin/dev/:id/tasks/unassigned/get', devCtrl.getUnassignedTasks)
  
 // Developer actions
 router.get('/dev/:userId/tasks/get', devCtrl.getAssignedTasks)
+router.get('/dev/:userId/tasks/all/get', devCtrl.getAllAssignedTasks)
 router.get('/dev/:id/projects/get', devCtrl.getAssignedProjects)
 
 

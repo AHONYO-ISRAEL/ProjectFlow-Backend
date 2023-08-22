@@ -36,6 +36,36 @@ exports.createTaskDev = async (req, res) => {
 };
 
 
+exports.assignTask = async (req, res) => {
+    try {
+        const searchDeveloper = await Developer.findOne({where:{id:req.body.devId}})
+        const  searchTask = await Task.findOne({where:{id: req.body.taskId}})
+        if(!searchDeveloper || !searchTask){
+            res.status(404).json({message: 'Task or Developer not found '})
+        }else{
+         //   const developerId = searchDeveloper.id
+            const existingAssignment = await TaskDev.findOne({
+                where: { devId: req.body.devId,  taskId: req.body.taskId }
+            }); 
+            if(existingAssignment){
+                res.status(400).json({message : 'Developer already assigned to this task'})
+            }else{
+        
+                newAssignment ={
+                    devId: req.body.devId,
+                    taskId: req.body.taskId,
+                }
+                TaskDev.create(newAssignment)
+                res.status(201).json({message: 'Developer assigned successfully'})
+                
+            }
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Error assigning developer: ' + error });
+    }
+};
+
+
 
 
 exports.getTaskDevs = async (req, res) => {
@@ -156,3 +186,14 @@ exports.getAllTasksWithDevs = async (req, res) => {
     }
   };
   
+
+  exports.deleteAssignment = async (req, res)=>{
+    try{
+     const  taskId =  req.params.taskId
+     const devId = req.params.devId
+     TaskDev.destroy({where:{taskId:taskId, devId:devId}})
+     res.status(200).json({message:'succes'})
+    }catch(error){
+      res.status(500).json({ error: 'Internal Server Error: ' + error });
+ }
+  }

@@ -51,7 +51,9 @@ exports.signup = async (req, res, next) => {
       };
 
       const createdUser = await User.create(newUser);
-      return res.status(200).json({ user: createdUser });
+      const newCreatedUser = await User.findOne({where:{email:req.body.email}})
+     
+      return res.status(200).json({ newUser: newCreatedUser });
     }
   } catch (error) {
     return res.status(500).json({error });
@@ -163,7 +165,7 @@ exports.getDevsInfo = async (req, res) => {
           ],
         },
       ],
-    });
+    }); 
 
     res.json(developers);
   } catch (error) {
@@ -173,9 +175,10 @@ exports.getDevsInfo = async (req, res) => {
 
 
 exports.sendMail = async  (req,res, next) =>{
-  const userMailCrypted =     jwt.sign({ email: req.body.email}, process.env.USER_INFO_TOKEN) 
+const userId = req.body.userId
+const cryptedUserInfo = jwt.sign({userId: userId}, process.env.USER_INFO_TOKEN)
 
-  const url = `http://localhost:5173/auth/credentials?userToken = ${userMailCrypted}`
+  const url = `http://localhost:5173/auth/credentials?userToken=${cryptedUserInfo}`
  const message="Se connecter avec mon compte"
 
   const recipient = req.body.email
@@ -193,18 +196,54 @@ exports.sendMail = async  (req,res, next) =>{
 
 exports.getUserByToken = async (req, res) => {
   try {
-    const encryptedToken = req.query.userToken;
-    const decryptedToken = jwt.verify(encryptedToken, process.env.USER_INFO_TOKEN);
-    const user = await User.findOne({ email: decryptedToken.email });
+    const email = req.query.userToken;
+
+    //const decryptedToken = jwt.verify(encryptedToken, process.env.USER_INFO_TOKEN);
+    const user = await User.findOne({where:{ email: email }});
     if (user) {
       res.status(200).json(user);
     }
   } catch (error) {
-    res.status(500).json({ error: 'Invalid or expired token' });
+    res.status(500).json({ error: 'Invalid or expired token' +error});
   }
 };
 
 
+exports.sendCredentials = async(req, res)=>{
+try{
+const userToken = req.params.userToken
+const decodedUserToken = jwt.verify(userToken,   process.env.USER_INFO_TOKEN )
+const userId = decodedUserToken.userId
+if(userId){
+  const credentials = await User.findOne({where:{id:userId}})
+  res.status(200).json({credentials:credentials})
+}
+}catch(error){
+  res.status(500).json({ error});
+
+}
+}
 
 
 
+exports.updateUserInfo = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const userData = req.body;
+    
+    if (userData.password) {
+      // Hash the new password
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+    
+    const updatedUser = await User.update(userData, { where: { id: userId } });
+    
+    if (updatedUser[0] === 0) {
+      res.status(404).json({ message: 'Utilisateur non trouvé' });
+    } else {
+      res.status(200).json({ message: 'Informations utilisateur mises à jour' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la mise à jour des informations utilisateur' });
+  }
+};

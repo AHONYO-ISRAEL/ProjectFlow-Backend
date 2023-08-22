@@ -25,7 +25,7 @@ exports.createProjectDev = async (req, res) => {
                     projectId: req.body.projectId,
                 }
                 ProjectDev.create(newAssignment)
-                res.status(201).json({message: 'Developer assigned successfully'})
+                res.status(200).json({message: 'Developer assigned successfully'})
             }
         }
     } catch (error) {
@@ -68,3 +68,13 @@ exports.getProjectDevs = async (req, res) => {
 };
 
 
+exports.deleteAssignment = async (req, res)=>{
+  try{
+   const  projectId =  req.params.projectId
+   const devId = req.params.devId
+   ProjectDev.destroy({where:{projectId:projectId, devId:devId}})
+   res.status(200).json({message:'succes'})
+  }catch(error){
+    res.status(500).json({ error: 'Internal Server Error: ' + error });
+}
+}

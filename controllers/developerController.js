@@ -101,7 +101,7 @@ exports.getAssignedTasks= async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
 };
-exports.getAllAssignedTasks= async (req, res) => {
+exports.getAllAssignedTasks= async (req, res,) => {
   try {
    const userId = req.params.userId
     const dev =  await Developer.findOne({where:{userId: userId}, attributes:['id']})
@@ -124,44 +124,71 @@ exports.getAllAssignedTasks= async (req, res) => {
       ],
     });
   res.status(200).json({developers});
+  
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error: ' + error });
   }
 };
 
+const   renderDistinctTaskIds = (tasks)=> {
+  const distinctTaskIds = [...new Set(tasks.map(task => task.taskId))];
+  const result = {
+    unassigned: distinctTaskIds.map(taskId => ({ taskId }))
+  };
+  return result;
+}
 
 
-exports.getUnassignedTasks= async (req, res) => {
+exports.getUnassignedTasks= async(req,res)=>{
+try{
+const devId = req.params.id
+const unassigned= await TaskDev.findAll(
+  {
+    where: { devId:{[Op.not]: parseInt(devId) }},
+    attributes:['taskId']
+  })
+  const unassignedTasks =  renderDistinctTaskIds(unassigned)
+res.status(200).json({unassignedTasks})
+}catch(error){
+  res.status(500).json({ error: 'Internal Server Error: ' + error });
+}
+}
+/*
+exports.getUnassignedTask = async (req, res) => {
   try {
+    const devId = parseInt(req.params.id);
 
-     const devId = parseInt(req.params.id)
-     const unassignedTasks = await Developer.findAll({
-       attributes: [],
-       include: [
-         {
-           model: User,
-           attributes: [],
-         },
-         {
-           model: Task,
-           where:{status:'Not Started'},
-           attributes: ['id', 'taskName','status'],
-           through: {
-             attributes: [], 
-             where: { devId:{[Op.not]: devId }}
-           },
-         },
-       ],
-     });
-     
-   res.status(200).json({unassignedTasks});
-   } catch (error) {
-     res.status(500).json({ error: 'Internal Server Error: ' + error });
-   }
+    const tasks = await Developer.findAll({
+      include: [
+        {
+          model: User,
+          attributes: [],
+        },
+        {
+          model: Task,
+          where: { status: 'Not Started' },
+          attributes: ['id', 'taskName', 'status'],
+          through: {
+            attributes: ['devId'],
+          },
+        },
+      ],
+    });
+
+    const unassignedTasks = tasks.reduce((acc, developer) => {
+      const unassignedTasksForDev = developer.tasks.filter(
+        (task) => task.taskDev.devId !== devId
+      );
+      return acc.concat(unassignedTasksForDev);
+    }, []);
+
+    res.status(200).json({ tasks, devId, unassignedTasks });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error: ' + error });
+  }
 };
 
-
-
+*/
 exports.getAssignedProjects = async (req, res) => {
   try {
     const userId = req.params.id

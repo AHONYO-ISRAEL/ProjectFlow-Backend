@@ -11,12 +11,15 @@ router.use(express.urlencoded({ extended: true }));
 // User Controller
 const userCtrl = require('../controllers/userController');
 
+
 // Authentication
 router.post('/auth/signup', userCtrl.signup);
 router.post('/auth/login', userCtrl.login);
 router.post('/auth/send', userCtrl.sendMail);
 router.post('/auth/refreshAccessToken', gnrt.gnrtNewToken);
-
+router.get('/auth/update/credentials/', userCtrl.getUserByToken)
+router.get('/auth/token/send/:userToken', userCtrl.sendCredentials)
+router.post('/auth/update/:id', userCtrl.updateUserInfo)
 // Admin Actions
 router.get('/admin/client/get', userCtrl.getClients);
 router.get('/admin/dev/get', userCtrl.getDevs);
@@ -47,20 +50,25 @@ router.post('/admin/task/add', taskCtrl.createTask);
 router.get('/admin/task/get/:status/:sectionId', taskCtrl.getStatusBasedSectionTasks);
 router.post('/task/:taskId/update/status/:newStatus', taskCtrl.updateTaskStatus)
 router.post('/admin/task/:taskId/update', taskCtrl.updateTask)
+router.get('/admin/dev/unassigned/task/:taskId', taskCtrl.getTasksByTaskIds)
+router.get('/admin/task/all/get', taskCtrl.getAllTasks)
+
 
 // Project Developer Controller
 const projectDevCtrl = require('../controllers/projectDevController');
 router.post('/admin/project/assign/dev', projectDevCtrl.createProjectDev);
 router.get('/admin/project/:projectId/dev', projectDevCtrl.getProjectDevs);
+router.post('/developer/:devId/unassign/project/:projectId', projectDevCtrl.deleteAssignment)
 
 // Task Developer Controller
 const taskDevCtrl = require('../controllers/taskDevController');
 router.post('/admin/task/assign/dev', taskDevCtrl.createTaskDev);
+router.post('/admin/dev/assign/task', taskDevCtrl.assignTask);
 router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
 router.get('/admin/section/:sectionId/tasks/dev', taskDevCtrl.getAllTasksWithDevs);
 router.get('/admin/task/:taskId/dev', taskDevCtrl.getTaskDevs);
 router.get('/developer/:userId/project/:projectId/sections/tasks/get', taskDevCtrl.getAssignedSectionsAndTasks)
-
+router.post('/developer/:devId/unassign/task/:taskId', taskDevCtrl.deleteAssignment)
 // Developer Controller 
 const devCtrl = require('../controllers/developerController')
 router.get('/admin/dev/all/get', devCtrl.getDevelopersWithProjectsAndTasks)

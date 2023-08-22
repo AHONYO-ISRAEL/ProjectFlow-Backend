@@ -12,14 +12,14 @@ exports.createTask=  async(req, res)=>{
                 ...restOfData
             }
             await Task.create(newTask)
-            const newCreatedTask = await Task.findOne({where: {taskName: req.body.taskName}})
+            const newCreatedTask = await Task.findOne({where: {taskName: req.body.taskName, sectionId:req.body.sectionId}})
             res.status(200).json({task : newCreatedTask})
 
         }else{
-            res.status(400).json({message : 'Task with this name already exists'})
+            res.status(400).json({message : 'Une tâche de ce nom est deja cree dans cette section'})
         }
     }catch(error){
-        res.status(500).json({ message: 'Adding of task failed  '+ error })
+        res.status(500).json({ message: "Echec d'ajout de la tâche"+ error })
     }
 }
 
@@ -63,5 +63,30 @@ exports.updateTaskStatus = async(req,res)=>{
     res.status(200).json({message:'Task started successfully'})
   }catch(error){
     res.status(500).json({error})
+  }
+}
+
+exports.getTasksByTaskIds = async(req, res)=>{
+  try {
+
+    const tasks = await Task.findOne({
+      attributes: ['id','taskName'],
+      where: {
+        id: req.params.taskId,
+      },
+    });
+    res.status(200).json({ tasks });
+  } catch (error) {
+    
+    res.status(500).json({ error: 'An error occurred while fetching task names.' + error});
+  }
+}
+
+exports.getAllTasks = async (req, res)=>{
+  try{
+const tasks =  await Task.findAll()
+res.status(200).json({tasks})
+  }catch(error){
+    res.status(500).json({ error: 'An error occurred while fetching task names.' + error});
   }
 }
